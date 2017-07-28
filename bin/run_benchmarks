@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+export PYTHONPATH="$(dirname "$0")/../lib/:$HOME/lib/site-python:$PYTHONPATH"
+export HOSTS="et2.et.eng.bos.redhat.com et3.et.eng.bos.redhat.com et4.et.eng.bos.redhat.com et5.et.eng.bos.redhat.com et6.et.eng.bos.redhat.com et7.et.eng.bos.redhat.com et8.et.eng.bos.redhat.com et9.et.eng.bos.redhat.com"
+export group=default
+for host in $HOSTS ;do
+      /opt/pbench-agent/util-scripts/pbench-register-tool-set --remote=$host
+      echo " "
+done
+# kill any collections tools that may already be running from previous interrupted/killed benchmark run
+for host in $HOSTS ;do
+      /opt/pbench-agent/util-scripts/pbench-kill-tools --group=$group
+done
+/usr/bin/env python "$(dirname "$0")/../lib/sparkperf/main.py" "$@"
