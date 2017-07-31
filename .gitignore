@@ -1,5 +1,4 @@
 # User-provided configurations.
-/config/config.py
 
 # Destinations for cloned repositories.
 /hive
