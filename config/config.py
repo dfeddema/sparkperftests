@@ -17,29 +17,28 @@ from sparkperf.config_utils import FlagSet, JavaOptionSet, OptionSet, ConstantOp
 
 SPARK_VERSION="2.1.0"
 OPENSHIFT_VERSION="v3.4.1.7"
-SPARK_CLUSTER_URL="spark://spark-master-1yih:7077"  
+SPARK_CLUSTER_URL="spark://10.1.3.207:7077"  
 SPARK_JOB_TEMPLATE="diane-oshinko-pyspark-job"  
 
-DOCKER_IMAGE="172.30.100.159:5000/perf-testing-d/mllibpy"
+#DOCKER_IMAGE="172.30.100.159:5000/perf-testing-d/mllibpy"
+DOCKER_IMAGE_PYTHON_MLLIB_TESTS="172.30.100.159:5000/perf-testing-d/mllibpy"
+DOCKER_IMAGE_PYSPARK_TESTS="172.30.100.159:5000/perf-testing-d/coretst"
 SPARK_OPTIONS="--executor-memory 32g --conf spark.default.parallelism=128 --conf spark.workers.memory=64g --conf spark.python.worker.memory=64g --conf spark.local.dir=/tmp"
 OSHINKO_SPARK_DRIVER_CONFIG="oshinko-spark-driver-config"
 OSHINKO_DEL_CLUSTER="true"
-OSHINKO_CLUSTER_NM="dianememtst32"
+OSHINKO_CLUSTER_NM="dianereverseproxyfalse"
 COMPLETIONS="1"
 
 PBENCH_HOME="/opt/pbench-agent/bench-scripts/" 
 SPARKPERF_RUNDIR="/root/diane/spark-on-openshift-benchmarks-newtests/" 
 
-#USE_CLUSTER_SPARK = True
 
 # Which tests to run
 RUN_SPARK_TESTS = False
-#RUN_PYSPARK_TESTS = True
-RUN_PYSPARK_TESTS = False
+RUN_PYSPARK_TESTS = True
 RUN_STREAMING_TESTS = False
 RUN_MLLIB_TESTS = False
 RUN_PYTHON_MLLIB_TESTS = True
-#RUN_PYTHON_MLLIB_TESTS = False
 
 # Which tests to prepare. Set this to true for the first
 # installation or whenever you make a change to the tests.
@@ -183,40 +182,37 @@ BROADCAST_TEST_OPTS = [
 #    [ConstantOption("SchedulerThroughputTest"), OptionSet("num-tasks", [5000])] + COMMON_OPTS)]
 #   [ConstantOption("SchedulerThroughputTest"), OptionSet("num-tasks", [100000])] + COMMON_OPTS)]
 
-PYSPARK_TESTS += [("python-agg-by-key", "core_tests.py", SCALE_FACTOR * 20,
+PYSPARK_TESTS += [("python-agg-by-key", "core_tests.py", SCALE_FACTOR * 10,
      COMMON_JAVA_OPTS, [ConstantOption("AggregateByKey")] + SPARK_KV_OPTS)]
 
 # Scale the input for this test by 2x since ints are smaller.
-PYSPARK_TESTS += [("python-agg-by-key-int", "core_tests.py", SCALE_FACTOR * 20,
+PYSPARK_TESTS += [("python-agg-by-key-int", "core_tests.py", SCALE_FACTOR * 10,
     COMMON_JAVA_OPTS, [ConstantOption("AggregateByKeyInt")] + SPARK_KV_OPTS)]
 
-PYSPARK_TESTS += [("python-agg-by-key-naive", "core_tests.py", SCALE_FACTOR * 6,
+PYSPARK_TESTS += [("python-agg-by-key-naive", "core_tests.py", SCALE_FACTOR * 2,
     COMMON_JAVA_OPTS, [ConstantOption("AggregateByKeyNaive")] + SPARK_KV_OPTS)]
 
 # Scale the input for this test by 0.10.
-#PYSPARK_TESTS += [("python-sort-by-key", "core_tests.py", SCALE_FACTOR * 0.1,
-PYSPARK_TESTS += [("python-sort-by-key", "core_tests.py", SCALE_FACTOR * 0.5,
+PYSPARK_TESTS += [("python-sort-by-key", "core_tests.py", SCALE_FACTOR * 0.1,
     COMMON_JAVA_OPTS, [ConstantOption("SortByKey")] + SPARK_KV_OPTS)]
 
-#PYSPARK_TESTS += [("python-sort-by-key-int", "core_tests.py", SCALE_FACTOR * 0.2,
-PYSPARK_TESTS += [("python-sort-by-key-int", "core_tests.py", SCALE_FACTOR * 0.5,
+PYSPARK_TESTS += [("python-sort-by-key-int", "core_tests.py", SCALE_FACTOR * 0.2,
     COMMON_JAVA_OPTS, [ConstantOption("SortByKeyInt")] + SPARK_KV_OPTS)]
 
-# Diane changed to *8
 #PYSPARK_TESTS += [("python-count", "core_tests.py", SCALE_FACTOR,
-PYSPARK_TESTS += [("python-count", "core_tests.py", SCALE_FACTOR * 8,
+PYSPARK_TESTS += [("python-count", "core_tests.py", SCALE_FACTOR,
                  COMMON_JAVA_OPTS, [ConstantOption("Count")] + SPARK_KV_OPTS)]
 
 #PYSPARK_TESTS += [("python-count-w-fltr", "core_tests.py", SCALE_FACTOR,
-PYSPARK_TESTS += [("python-count-w-fltr", "core_tests.py", SCALE_FACTOR * 10,
+PYSPARK_TESTS += [("python-count-w-fltr", "core_tests.py", SCALE_FACTOR,
     COMMON_JAVA_OPTS, [ConstantOption("CountWithFilter")] + SPARK_KV_OPTS)]
 
 #PYSPARK_TESTS += [("python-broadcast-w-bytes", "core_tests.py", SCALE_FACTOR,
-PYSPARK_TESTS += [("python-broadcast-w-bytes", "core_tests.py", SCALE_FACTOR * 10,
+PYSPARK_TESTS += [("python-broadcast-w-bytes", "core_tests.py", SCALE_FACTOR,
     COMMON_JAVA_OPTS, [ConstantOption("BroadcastWithBytes")] + SPARK_KV_OPTS + BROADCAST_TEST_OPTS)]
 
 #PYSPARK_TESTS += [("python-broadcast-w-set", "core_tests.py", SCALE_FACTOR,
-PYSPARK_TESTS += [("python-broadcast-w-set", "core_tests.py", SCALE_FACTOR * 10,
+PYSPARK_TESTS += [("python-broadcast-w-set", "core_tests.py", SCALE_FACTOR,
     COMMON_JAVA_OPTS, [ConstantOption("BroadcastWithSet")] + SPARK_KV_OPTS + BROADCAST_TEST_OPTS)]
 
 
@@ -253,7 +249,7 @@ STREAMING_KEY_VAL_TEST_OPTS = STREAMING_COMMON_OPTS + streaming_batch_duration_o
     # Number of records per second per input stream
     OptionSet("records-per-sec", [10 * 1000]),
     # Number of reduce tasks.
-    OptionSet("reduce-tasks", [10], can_scale=True),
+#   OptionSet("reduce-tasks", [10], can_scale=True),
     # memory serialization ("true" or "false").
     OptionSet("memory-serialization", ["true"]),
     # Number of unique keys to sample from.
@@ -312,8 +308,6 @@ MLLIB_COMMON_OPTS = COMMON_OPTS + [
     # The number of input partitions.
     # The default setting is suitable for a 16-node m3.2xlarge EC2 cluster.
     OptionSet("num-partitions", [128]),
-    # Diane changed this OptionSet("num-partitions", [256], can_scale=True),
-    # Diane this setting above changedOptionSet("num-partitions", [128], can_scale=True),
     # A random seed to make tests reproducable.
     OptionSet("random-seed", [5])
 ]
@@ -697,17 +691,17 @@ if MLLIB_SPARK_VERSION >= 1.5:
 # Python MLlib tests
 PYTHON_MLLIB_TESTS = []
 
-#PYTHON_MLLIB_TESTS += [("python-glm-classification", "mllib_tests.py", SCALE_FACTOR,
-#                         MLLIB_JAVA_OPTS, [ConstantOption("GLMClassificationTest")] +
-#                         MLLIB_GLM_CLASSIFICATION_TEST_OPTS)]
+PYTHON_MLLIB_TESTS += [("python-glm-classification", "mllib_tests.py", SCALE_FACTOR,
+                         MLLIB_JAVA_OPTS, [ConstantOption("GLMClassificationTest")] +
+                         MLLIB_GLM_CLASSIFICATION_TEST_OPTS)]
 
-#PYTHON_MLLIB_TESTS += [("python-glm-regression", "mllib_tests.py", SCALE_FACTOR,
-#                         MLLIB_JAVA_OPTS, [ConstantOption("GLMRegressionTest")] +
-#                         MLLIB_GLM_REGRESSION_TEST_OPTS)]
+PYTHON_MLLIB_TESTS += [("python-glm-regression", "mllib_tests.py", SCALE_FACTOR,
+                         MLLIB_JAVA_OPTS, [ConstantOption("GLMRegressionTest")] +
+                         MLLIB_GLM_REGRESSION_TEST_OPTS)]
 
-#PYTHON_MLLIB_TESTS += [("python-naive-bayes", "mllib_tests.py", SCALE_FACTOR,
-#                         MLLIB_JAVA_OPTS, [ConstantOption("NaiveBayesTest")] +
-#                         NAIVE_BAYES_TEST_OPTS)]
+PYTHON_MLLIB_TESTS += [("python-naive-bayes", "mllib_tests.py", SCALE_FACTOR,
+                         MLLIB_JAVA_OPTS, [ConstantOption("NaiveBayesTest")] +
+                         NAIVE_BAYES_TEST_OPTS)]
 
 PYTHON_MLLIB_TESTS += [("python-als", "mllib_tests.py", SCALE_FACTOR,
                          MLLIB_JAVA_OPTS, [ConstantOption("ALSTest")] +
@@ -716,12 +710,12 @@ PYTHON_MLLIB_TESTS += [("python-als", "mllib_tests.py", SCALE_FACTOR,
 PYTHON_MLLIB_TESTS += [("python-kmeans", "mllib_tests.py", SCALE_FACTOR,
                          MLLIB_JAVA_OPTS, [ConstantOption("KMeansTest")] + MLLIB_CLUSTERING_TEST_OPTS)]
 
-#if MLLIB_SPARK_VERSION >= 1.1:
-#     PYTHON_MLLIB_TESTS += [("python-pearson", "mllib_tests.py", SCALE_FACTOR,
-#                              MLLIB_JAVA_OPTS, [ConstantOption("PearsonCorrelationTest")] +
-#                              MLLIB_PEARSON_TEST_OPTS)]
+if MLLIB_SPARK_VERSION >= 1.1:
+     PYTHON_MLLIB_TESTS += [("python-pearson", "mllib_tests.py", SCALE_FACTOR,
+                              MLLIB_JAVA_OPTS, [ConstantOption("PearsonCorrelationTest")] +
+                              MLLIB_PEARSON_TEST_OPTS)]
 
-#     PYTHON_MLLIB_TESTS += [("python-spearman", "mllib_tests.py", SCALE_FACTOR,
-#                              MLLIB_JAVA_OPTS, [ConstantOption("SpearmanCorrelationTest")] +
-#                              MLLIB_SPEARMAN_TEST_OPTS)]
+     PYTHON_MLLIB_TESTS += [("python-spearman", "mllib_tests.py", SCALE_FACTOR,
+                              MLLIB_JAVA_OPTS, [ConstantOption("SpearmanCorrelationTest")] +
+                              MLLIB_SPEARMAN_TEST_OPTS)]
 

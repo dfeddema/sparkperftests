@@ -90,7 +90,9 @@ class PerfTestSuite(object):
                     print("Running command: %s\n" % cmd)
 
                     #  write command to a file and make it executable 
-                    print("CONFIG setting docker_image %s" % config.DOCKER_IMAGE)
+#                   print("CONFIG setting docker_image %s" % config.DOCKER_IMAGE)
+                    print("CONFIG setting docker_image from DOCKER_IMAGE_PYSPARK_TESTS %s" % config.DOCKER_IMAGE_PYSPARK_TESTS)
+                    print("CONFIG setting docker_image from DOCKER_IMAGE_PYTHON_MLLIB_TESTS %s" % config.DOCKER_IMAGE_PYTHON_MLLIB_TESTS)
                     with open ( config.SPARKPERF_RUNDIR + 'template.sh', 'a') as f: 
                          f.write('#! /bin/bash\n')
                          f.write(cmd)
@@ -114,9 +116,13 @@ class PerfTestSuite(object):
                           print(" timed out waiting for successful run") 
                           print("\ntest_status " + test_status)
                       
+#                   stdout_filename = "/var/lib/pbench-agent/log_" +  pods
+                    stdout_filename = "/var/lib/pbench-agent/log_%s" % (pods)
                     pods = Popen("oc logs -f %s >/var/lib/pbench-agent/log_%s" % (pods,pods), shell=True, stdout=PIPE).stdout.read()
+                    print ("\n stdout_filename =" + stdout_filename)
                     result_string = cls.process_output(config, short_name, opt_list,
                                                        stdout_filename, stderr_filename)
+                    print("\n results string =" + result_string)
                     pbmv = Popen("/opt/pbench-agent/util-scripts/pbench-move-results  --prefix=pysparkmllib", shell=True, stdout=PIPE).stdout.read()
                     pods_remove = Popen("oc delete jobs  %s " % app_name, shell=True, stdout=PIPE).stdout.read() 
 
@@ -209,7 +215,7 @@ class StreamingTests(JVMPerfTestSuite):
         lastlines = Popen("tail -5 %s" % stdout_filename, shell=True, stdout=PIPE).stdout.read()
         results_token = "Result: "
         if results_token not in lastlines:
-#           result = "FAILED"
+            result = "FAILED"
             result = " " 
         else:
             result = filter(lambda x: results_token in x,
@@ -300,7 +306,7 @@ class PythonMLlibTests(PerfTestSuite, MLlibTestHelper):
             " --param=SPARK_OPTIONS=\"%s\" --param=OSHINKO_SPARK_DRIVER_CONFIG=%s  --param=COMPLETIONS=%s " \
             " --param=OSHINKO_CLUSTER_NAME=%s "  % ( 
             spark_submit, config.SPARK_JOB_TEMPLATE,
-            app_name, config.DOCKER_IMAGE, " ".join(opt_list), config.SPARK_OPTIONS, 
+            app_name, config.DOCKER_IMAGE_PYTHON_MLLIB_TESTS, " ".join(opt_list), config.SPARK_OPTIONS, 
             config.OSHINKO_SPARK_DRIVER_CONFIG, config.COMPLETIONS, config.OSHINKO_CLUSTER_NM 
              )
         return cmd
@@ -326,7 +332,7 @@ class PythonTests(PerfTestSuite):
             " --param=SPARK_OPTIONS=\"%s\" --param=OSHINKO_SPARK_DRIVER_CONFIG=%s  --param=COMPLETIONS=%s " \
             " --param=OSHINKO_CLUSTER_NAME=%s "  % (
             spark_submit, config.SPARK_JOB_TEMPLATE,
-            app_name, config.DOCKER_IMAGE, " ".join(opt_list), config.SPARK_OPTIONS,
+            app_name, config.DOCKER_IMAGE_PYSPARK_TESTS, " ".join(opt_list), config.SPARK_OPTIONS,
             config.OSHINKO_SPARK_DRIVER_CONFIG, config.COMPLETIONS, config.OSHINKO_CLUSTER_NM
              )
 
